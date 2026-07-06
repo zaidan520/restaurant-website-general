@@ -1,0 +1,38 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import Contact from '../../components/Contact.astro';
+import Footer from '../../components/Footer.astro';
+
+const { slug } = Astro.params;
+
+let clientData = null;
+let hours = [];
+
+try {
+  const clientRes = await fetch(`http://localhost:8000/api/clients/${slug}`);
+  if (clientRes.status === 404) {
+    return Astro.redirect('/404');
+  }
+  clientData = await clientRes.json();
+
+  const hoursRes = await fetch(`http://localhost:8000/api/hours/${slug}`);
+  if (hoursRes.ok) {
+    hours = await hoursRes.json();
+  }
+} catch (error) {
+  console.error("Failed to load client contact data:", error);
+}
+
+if (!clientData) {
+  return Astro.redirect('/404');
+}
+---
+
+<Layout clientData={clientData} pageTitle={`Contact & Hours | ${clientData.business_name}`} pageDescription={`Get directions, view phone, email, and opening hours for ${clientData.business_name}.`}>
+  <Header clientData={clientData} basePath={`/${slug}`}  transparent={false}/>
+  <main class="bg-brand-bg pt-20">
+    <Contact clientData={clientData} hours={hours} basePath={`/${slug}`} />
+  </main>
+  <Footer clientData={clientData} basePath={`/${slug}`} />
+</Layout>

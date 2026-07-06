@@ -1,0 +1,644 @@
+---
+import Layout from "../../layouts/Layout.astro";
+const API_BASE = "http://localhost:8000/api";
+
+let clients = [];
+let selectedSlug = "";
+let orders = [];
+let menuItems = [];
+let menuCategories = [];
+let reservations = [];
+let clientData = null;
+let createError = "";
+let isPost = false;
+
+if (Astro.request.method === "POST") {
+  isPost = true;
+  const formData = await Astro.request.formData();
+  const business_name = formData.get("business_name")?.toString().trim();
+  const phone = formData.get("phone")?.toString().trim();
+  const city = formData.get("city")?.toString().trim();
+  const address = formData.get("address")?.toString().trim();
+
+  if (!business_name) {
+    createError = "Business name required";
+  } else {
+    try {
+      const res = await fetch(`${API_BASE}/clients/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ business_name, phone, city, address }),
+      });
+      const data = await res.json();
+      if (data.success && data.slug) {
+        return Astro.redirect(`/dashboard/home?slug=${data.slug}`);
+      } else {
+        createError = data.detail || "Failed to create restaurant";
+      }
+    } catch (e) {
+      createError = "Failed";
+    }
+  }
+}
+
+if (!isPost || (isPost && !createError)) {
+  try {
+    const res = await fetch(`${API_BASE}/clients/`);
+    if (res.ok) {
+      clients = await res.json();
+      if (clients.length > 0 && !selectedSlug) {
+        selectedSlug = clients[0].slug;
+      }
+    }
+  } catch (e) {
+    console.error("Failed to load clients", e);
+  }
+}
+
+if (selectedSlug) {
+  try {
+    const [clientRes, ordersRes, menuRes, reservationsRes] = await Promise.all([
+      fetch(`${API_BASE}/clients/${selectedSlug}`),
+      fetch(`${API_BASE}/orders/${selectedSlug}`),
+      fetch(`${API_BASE}/menu/${selectedSlug}`),
+      fetch(`${API_BASE}/reservations/${selectedSlug}`),
+    ]);
+
+    if (clientRes.ok) clientData = await clientRes.json();
+    if (ordersRes.ok) orders = await ordersRes.json();
+    if (menuRes.ok) {
+      const menuData = await menuRes.json();
+      menuCategories = menuData;
+      menuItems = menuData.flatMap((c) => c.items || []);
+    }
+    if (reservationsRes.ok) reservations = await reservationsRes.json();
+  } catch (e) {
+    console.error("Failed to load data", e);
+  }
+}
+---
+
+<Layout clientData={clientData} pageTitle="Dashboard">
+  <div class="bg-gray-50 min-h-screen">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-gray-900">Dashboard</h1>
+        <form method="POST" action="/dashboard">
+          <button type="submit" class="text-sm text-red-600 hover:text-red-800"
+            >Logout</button
+          >
+        </form>
+      </div>
+      <!-- 
+      {!clientData && (
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-6">
+          <h2 class="text-lg font-bold text-gray-900 mb-4">Create Restaurant</h2>
+          {createError && <div class="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg">{createError}</div>}
+          <form method="POST" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Business Name *</label>
+                <input type="text" name="business_name" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-600 outline-none" placeholder="e.g. Mario's Pizza" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                <input type="text" name="phone" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-600 outline-none"                 placeholder="+1 (555) 000-0000" />
+              </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">City</label>
+                <input type="text" name="city" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-600 outline-none"                 placeholder="New York" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                <input type="text" name="address" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-600 outline-none" placeholder="Main Street" />
+              </div>
+            </div>
+            <button type="submit" class="bg-green-700 hover:bg-green-800 text-white font-medium py-2 px-6 rounded-lg transition">
+              Create Restaurant
+            </button>
+          </form>
+        </div>
+      )} -->
+
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div class="bg-white rounded-xl p-4 border border-gray-100">
+          <p class="text-xs text-gray-500">Total Orders</p>
+          <p class="text-3xl font-bold text-gray-900">{orders.length}</p>
+        </div>
+        <div class="bg-white rounded-xl p-4 border border-gray-100">
+          <p class="text-xs text-gray-500">Menu Items</p>
+          <p class="text-3xl font-bold text-gray-900">{menuItems.length}</p>
+        </div>
+        <div class="bg-white rounded-xl p-4 border border-gray-100">
+          <p class="text-xs text-gray-500">Reservations</p>
+          <p class="text-3xl font-bold text-gray-900">{reservations.length}</p>
+        </div>
+        <div class="bg-white rounded-xl p-4 border border-gray-100">
+          <p class="text-xs text-gray-500">Out of Stock</p>
+          <p class="text-3xl font-bold text-red-600">
+            {menuItems.filter((i) => !i.is_available).length}
+          </p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        <div class="lg:col-span-1">
+          <div class="bg-white rounded-xl p-5 border border-gray-100 mb-4">
+            <h3 class="font-bold text-gray-900 mb-3">Quick Actions</h3>
+            <div class="space-y-2">
+              <button
+                id="openAddItem"
+                class="w-full text-left px-4 py-2.5 bg-green-50 hover:bg-green-100 text-green-800 rounded-lg font-medium transition"
+                >+ Add Menu Item</button
+              >
+              <button
+                id="openAddCategory"
+                class="w-full text-left px-4 py-2.5 bg-blue-50 hover:bg-blue-100 text-blue-800 rounded-lg font-medium transition"
+                >+ Create Category</button
+              >
+            </div>
+          </div>
+        </div>
+        <div
+          class="lg:col-span-2 bg-white rounded-xl p-5 border border-gray-100"
+        >
+          <h3 class="font-bold text-gray-900 mb-2">Revenue Summary</h3>
+          <div class="grid grid-cols-2 gap-4">
+            <div class="bg-gray-50 rounded-xl p-4">
+              <div class="text-sm text-gray-600 mb-1">Total Orders</div>
+              <div class="text-2xl font-bold text-gray-900">
+                {orders.length}
+              </div>
+            </div>
+            <div class="bg-gray-50 rounded-xl p-4">
+              <div class="text-sm text-gray-600 mb-1">Menu Items</div>
+              <div class="text-2xl font-bold text-gray-900">
+                {menuItems.length}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6"
+      >
+        <div class="px-4 py-3 border-b border-gray-100">
+          <h3 class="font-bold text-gray-900">Recent Orders</h3>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th
+                  class="px-4 py-2 text-left text-xs font-medium text-gray-600"
+                  >Order</th
+                >
+                <th
+                  class="px-4 py-2 text-left text-xs font-medium text-gray-600"
+                  >Customer</th
+                >
+                <th
+                  class="px-4 py-2 text-left text-xs font-medium text-gray-600"
+                  >Phone</th
+                >
+                <th
+                  class="px-4 py-2 text-left text-xs font-medium text-gray-600"
+                  >Total</th
+                >
+                <th
+                  class="px-4 py-2 text-left text-xs font-medium text-gray-600"
+                  >Status</th
+                >
+                <th
+                  class="px-4 py-2 text-right text-xs font-medium text-gray-600"
+                  >Action</th
+                >
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+              {
+                orders.length === 0 ? (
+                  <tr>
+                    <td
+                      colspan="6"
+                      class="px-4 py-6 text-center text-sm text-gray-500"
+                    >
+                      No orders yet
+                    </td>
+                  </tr>
+                ) : (
+                  orders.slice(0, 20).map((order) => (
+                    <tr class="hover:bg-gray-50">
+                      <td class="px-4 py-3 text-sm font-medium text-gray-900">
+                        {order.order_code}
+                      </td>
+                      <td class="px-4 py-3 text-sm text-gray-700">
+                        {order.customer_name}
+                      </td>
+                      <td class="px-4 py-3 text-sm text-gray-700">
+                        {order.customer_phone}
+                      </td>
+                      <td class="px-4 py-3 text-sm text-gray-700">
+                        {order.total || "-"}
+                      </td>
+                      <td class="px-4 py-3 text-sm">
+                        <select
+                          onchange={`updateOrderStatus('${selectedSlug}', ${order.id}, this.value)`}
+                          class="text-xs border border-gray-200 rounded-lg px-2 py-1 bg-white"
+                        >
+                          <option
+                            value="pending"
+                            selected={order.status === "pending"}
+                          >
+                            Pending
+                          </option>
+                          <option
+                            value="preparing"
+                            selected={order.status === "preparing"}
+                          >
+                            Preparing
+                          </option>
+                          <option
+                            value="ready"
+                            selected={order.status === "ready"}
+                          >
+                            Ready
+                          </option>
+                          <option
+                            value="completed"
+                            selected={order.status === "completed"}
+                          >
+                            Completed
+                          </option>
+                          <option
+                            value="cancelled"
+                            selected={order.status === "cancelled"}
+                          >
+                            Cancelled
+                          </option>
+                        </select>
+                      </td>
+                      <td class="px-4 py-3 text-right text-sm">
+                        <button
+                          onclick="deleteOrder('{selectedSlug}', {order.id})"
+                          class="text-red-600 hover:text-red-800"
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div
+        class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6"
+      >
+        <div class="px-4 py-3 border-b border-gray-100">
+          <h3 class="font-bold text-gray-900">Recent Reservations</h3>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th
+                  class="px-4 py-2 text-left text-xs font-medium text-gray-600"
+                  >Code</th
+                >
+                <th
+                  class="px-4 py-2 text-left text-xs font-medium text-gray-600"
+                  >Name</th
+                >
+                <th
+                  class="px-4 py-2 text-left text-xs font-medium text-gray-600"
+                  >Phone</th
+                >
+                <th
+                  class="px-4 py-2 text-left text-xs font-medium text-gray-600"
+                  >Date/Time</th
+                >
+                <th
+                  class="px-4 py-2 text-left text-xs font-medium text-gray-600"
+                  >Status</th
+                >
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+              {
+                reservations.length === 0 ? (
+                  <tr>
+                    <td
+                      colspan="5"
+                      class="px-4 py-6 text-center text-sm text-gray-500"
+                    >
+                      No reservations yet
+                    </td>
+                  </tr>
+                ) : (
+                  reservations.slice(0, 10).map((r) => (
+                    <tr class="hover:bg-gray-50">
+                      <td class="px-4 py-3 text-sm font-medium text-gray-900">
+                        {r.reservation_code}
+                      </td>
+                      <td class="px-4 py-3 text-sm text-gray-700">{r.name}</td>
+                      <td class="px-4 py-3 text-sm text-gray-700">{r.phone}</td>
+                      <td class="px-4 py-3 text-sm text-gray-600">
+                        {r.date} {r.time}
+                      </td>
+                      <td class="px-4 py-3 text-sm">
+                        <span
+                          class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium {
+                        r.status === 'pending' ? 'bg-amber-100 text-amber-800' :
+                        r.status === 'confirmed' ? 'bg-green-100 text-green-800' :
+                        'bg-red-100 text-red-800'
+                      }"
+                        >
+                          {r.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                )
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div
+        class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"
+      >
+        <div
+          class="px-4 py-3 border-b border-gray-100 flex items-center justify-between"
+        >
+          <h3 class="font-bold text-gray-900">
+            Menu Items ({menuItems.length})
+          </h3>
+          <button
+            id="openAddItem2"
+            class="text-sm text-green-700 hover:text-green-800 font-medium"
+            >+ Add Item</button
+          >
+        </div>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th
+                  class="px-4 py-2 text-left text-xs font-medium text-gray-600"
+                  >Name</th
+                >
+                <th
+                  class="px-4 py-2 text-left text-xs font-medium text-gray-600"
+                  >Category</th
+                >
+                <th
+                  class="px-4 py-2 text-left text-xs font-medium text-gray-600"
+                  >Price</th
+                >
+                <th
+                  class="px-4 py-2 text-left text-xs font-medium text-gray-600"
+                  >Status</th
+                >
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+              {
+                menuItems.length === 0 ? (
+                  <tr>
+                    <td
+                      colspan="4"
+                      class="px-4 py-6 text-center text-sm text-gray-500"
+                    >
+                      No menu items yet. Add your first item.
+                    </td>
+                  </tr>
+                ) : (
+                  menuItems.map((item) => {
+                    const category = menuCategories.find(
+                      (c) => c.id === item.category_id,
+                    );
+                    return (
+                      <tr class="hover:bg-gray-50">
+                        <td class="px-4 py-3 text-sm font-medium text-gray-900">
+                          {item.name}
+                        </td>
+                        <td class="px-4 py-3 text-sm text-gray-700">
+                          {category?.name || "-"}
+                        </td>
+                        <td class="px-4 py-3 text-sm text-gray-700">
+                          {item.price || "-"}
+                        </td>
+                        <td class="px-4 py-3 text-sm">
+                          <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium {item.is_available ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                            {item.is_available ? "Available" : "Out of Stock"}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<div
+  id="addItemModal"
+  class="hidden fixed inset-0 z-50 flex items-center justify-center p-4"
+>
+  <div
+    class="fixed inset-0 bg-black/50 backdrop-blur-sm"
+    onclick="document.getElementById('addItemModal').classList.add('hidden')"
+  >
+  </div>
+  <div
+    class="bg-white rounded-2xl shadow-xl max-w-md w-full relative z-10 max-h-[90vh] overflow-y-auto"
+  >
+    <form id="addItemForm" class="p-6">
+      <h3 class="text-lg font-bold text-gray-900 mb-4">Add Menu Item</h3>
+      <div class="space-y-3">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1"
+            >Name</label
+          >
+          <input
+            type="text"
+            id="itemName"
+            required
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-600 outline-none"
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1"
+            >Description</label
+          >
+          <textarea
+            id="itemDescription"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-600 outline-none"
+          ></textarea>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1"
+              >Price</label
+            >
+            <input
+              type="text"
+              id="itemPrice"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-600 outline-none"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1"
+              >Category</label
+            >
+            <select
+              id="itemCategory"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-600 outline-none"
+            >
+              {
+                menuCategories.map(
+                  (c) => `<option value="${c.id}">${c.name}</option>`,
+                )
+              }
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1"
+            >Image URL</label
+          >
+          <input
+            type="text"
+            id="itemImageUrl"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-600 outline-none"
+          />
+        </div>
+      </div>
+      <div class="mt-5 flex gap-2">
+        <button
+          type="submit"
+          class="flex-1 bg-green-700 hover:bg-green-800 text-white font-medium py-2 rounded-lg transition"
+          >Add Item</button
+        >
+        <button
+          type="button"
+          onclick="document.getElementById('addItemModal').classList.add('hidden')"
+          class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition"
+          >Cancel</button
+        >
+      </div>
+    </form>
+  </div>
+</div>
+
+<div
+  id="addCategoryModal"
+  class="hidden fixed inset-0 z-50 flex items-center justify-center p-4"
+>
+  <div
+    class="fixed inset-0 bg-black/50 backdrop-blur-sm"
+    onclick="document.getElementById('addCategoryModal').classList.add('hidden')"
+  >
+  </div>
+  <div class="bg-white rounded-2xl shadow-xl max-w-sm w-full relative z-10">
+    <form id="addCategoryForm" class="p-6">
+      <h3 class="text-lg font-bold text-gray-900 mb-4">Create Category</h3>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1"
+          >Category Name</label
+        >
+        <input
+          type="text"
+          id="categoryName"
+          required
+          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-600 outline-none"
+        />
+      </div>
+      <div class="mt-5 flex gap-2">
+        <button
+          type="submit"
+          class="flex-1 bg-blue-700 hover:bg-blue-800 text-white font-medium py-2 rounded-lg transition"
+          >Create</button
+        >
+        <button
+          type="button"
+          onclick="document.getElementById('addCategoryModal').classList.add('hidden')"
+          class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition"
+          >Cancel</button
+        >
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  const API_BASE = "http://localhost:8000/api";
+
+  document.getElementById("openAddItem")?.addEventListener("click", () => {
+    document.getElementById("addItemModal").classList.remove("hidden");
+  });
+
+  document.getElementById("openAddItem2")?.addEventListener("click", () => {
+    document.getElementById("addItemModal").classList.remove("hidden");
+  });
+
+  document.getElementById("openAddCategory")?.addEventListener("click", () => {
+    document.getElementById("addCategoryModal").classList.remove("hidden");
+  });
+
+  document.getElementById("addItemForm")?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const data = {
+      name: document.getElementById("itemName").value,
+      description: document.getElementById("itemDescription").value,
+      price: document.getElementById("itemPrice").value,
+      category_id: parseInt(document.getElementById("itemCategory").value) || 1,
+      image_url: document.getElementById("itemImageUrl").value,
+    };
+    fetch(API_BASE + "/menu/{selectedSlug}", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    }).then((res) => (res.ok ? window.location.reload() : alert("Failed")));
+  });
+
+  document
+    .getElementById("addCategoryForm")
+    ?.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const name = document.getElementById("categoryName").value;
+      fetch(API_BASE + "/categories/{selectedSlug}", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name }),
+      }).then((res) => (res.ok ? window.location.reload() : alert("Failed")));
+    });
+
+  function updateOrderStatus(slug, orderId, status) {
+    fetch(API_BASE + "/orders/" + slug + "/" + orderId, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status }),
+    }).then((res) => (res.ok ? window.location.reload() : alert("Failed")));
+  }
+
+  function deleteOrder(slug, orderId) {
+    if (!confirm("Delete this order?")) return;
+    fetch(API_BASE + "/orders/" + slug + "/" + orderId, {
+      method: "DELETE",
+    }).then((res) => (res.ok ? window.location.reload() : alert("Failed")));
+  }
+</script>

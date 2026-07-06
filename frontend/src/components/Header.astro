@@ -1,0 +1,184 @@
+---
+const { clientData, basePath = '', transparent = true } = Astro.props;
+const slug = clientData?.slug || '';
+const currentPath = Astro.url.pathname;
+const normalizedBase = basePath === '/' ? '' : basePath;
+
+const navLinks = [
+  { href: `${normalizedBase}/`, label: 'Home' },
+  { href: `${normalizedBase}/menu`, label: 'Menu' },
+  { href: `${normalizedBase}/gallery`, label: 'Gallery' },
+  { href: `${normalizedBase}/about`, label: 'About' },
+  { href: `${normalizedBase}/contact`, label: 'Contact' },
+];
+
+const isActive = (href) => {
+  if (href === '/') return currentPath === '/' || currentPath === '';
+  return currentPath === href || currentPath.startsWith(href + '/');
+};
+
+const isOrderPage = currentPath === `${normalizedBase}/order_now`;
+---
+
+<header id="main-header" class={`fixed top-0 left-0 right-0 z-30 transition-all duration-300 px-4 sm:px-6 md:px-10 py-4 sm:py-6 ${transparent ? 'bg-transparent header-transparent' : 'bg-white/95 backdrop-blur-md shadow-md py-3 sm:py-4'}`}>
+  <div class="max-w-7xl mx-auto flex items-center justify-between">
+    <!-- Logo / Brand Name -->
+    <a href={`${normalizedBase}/`} class="flex items-center gap-2 text-brand-primary">
+      <span class="text-xl sm:text-2xl font-bold tracking-tight font-serif-custom">
+        {clientData?.business_name || 'Restaurant'}
+      </span>
+    </a>
+
+    <!-- Desktop Pill Navigation -->
+    <div class="hidden lg:flex items-center gap-1 bg-white/80 backdrop-blur-md rounded-full pl-6 pr-1 py-1 shadow-sm border border-white/60">
+      {navLinks.map((link) => (
+        <a 
+          href={link.href} 
+          class={`text-sm px-3.5 py-2 font-medium transition-colors ${
+            isActive(link.href) 
+              ? 'text-brand-primary font-semibold' 
+              : 'text-brand-secondary hover:text-brand-primary'
+          }`}
+        >
+          {link.label}
+        </a>
+      ))}
+      <a 
+        href={`${normalizedBase}/order_now`} 
+        class={`ml-2 text-sm font-medium px-5 py-2.5 rounded-btn transition-colors ${
+          isOrderPage
+            ? 'bg-green-600 text-white hover:opacity-90'
+            : 'bg-brand-primary text-brand-bg hover:opacity-90'
+        }`}
+      >
+        Order Now
+      </a>
+    </div>
+
+    <!-- Right-aligned Call / Mobile Button -->
+    <div class="flex items-center gap-3 sm:gap-6 text-brand-primary">
+      {clientData?.phone && (
+        <a href={`tel:${clientData.phone}`} class="hidden sm:flex items-center gap-2 text-sm font-semibold hover:opacity-85 transition-opacity">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.94.725l.548 2.2a1 1 0 01-.321.988l-1.305.98a10.582 10.582 0 004.872 4.872l.98-1.305a1 1 0 01.988-.321l2.2.548a1 1 0 01.725.94V19a2 2 0 01-2 2h-1C9.716 21,3 14.284,3 6V5z"/></svg>
+          {clientData.phone}
+        </a>
+      )}
+      
+      <!-- Hamburger Toggle -->
+      <button
+        id="menu-toggle"
+        class="lg:hidden relative flex items-center justify-center w-10 h-10 rounded-full bg-white/80 backdrop-blur-md border border-white/60 text-brand-primary hover:bg-white/95 transition-all duration-300"
+        aria-label="Toggle menu"
+      >
+        <svg id="hamburger-icon" class="w-5 h-5 transition-all duration-300 opacity-100 rotate-0 scale-100 absolute" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        <svg id="close-icon" class="w-5 h-5 transition-all duration-300 opacity-0 -rotate-90 scale-50 absolute" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- Mobile Menu Overlay -->
+<div id="mobile-menu-overlay" class="lg:hidden fixed inset-0 z-20 transition-opacity duration-300 opacity-0 pointer-events-none bg-brand-primary/40 backdrop-blur-sm"></div>
+
+<!-- Mobile Menu Drawer -->
+<div id="mobile-drawer" class="lg:hidden fixed top-0 right-0 bottom-0 z-20 w-[85%] max-w-sm bg-white/95 backdrop-blur-xl shadow-2xl transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] translate-x-full">
+  <div class="flex flex-col h-full pt-24 px-8 pb-8">
+    <div class="flex flex-col gap-1">
+      {navLinks.map((link) => (
+        <a href={link.href} class="mobile-nav-link text-2xl font-semibold text-brand-primary py-4 border-b border-brand-primary/10 transition-all duration-500 translate-x-8 opacity-0">
+          {link.label}
+        </a>
+      ))}
+    </div>
+
+    <div class="mt-8 flex flex-col gap-4 mobile-cta-group transition-all duration-500 translate-x-8 opacity-0">
+      {clientData?.phone && (
+        <a href={`tel:${clientData.phone}`} class="flex items-center gap-2 text-sm font-semibold text-brand-secondary py-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.94.725l.548 2.2a1 1 0 01-.321.988l-1.305.98a10.582 10.582 0 004.872 4.872l.98-1.305a1 1 0 01.988-.321l2.2.548a1 1 0 01.725.94V19a2 2 0 01-2 2h-1C9.716 21,3 14.284,3 6V5z"/></svg>
+          Call: {clientData.phone}
+        </a>
+      )}
+      <a href={`${normalizedBase}/order_now`} class="text-center bg-green-600 hover:bg-green-700 text-white text-sm font-semibold px-5 py-3 rounded-btn transition-colors shadow-sm">
+        Order Now
+      </a>
+    </div>
+  </div>
+</div>
+
+<script define:vars={{ startsTransparent: transparent }}>
+  const header = document.getElementById('main-header');
+  const toggleBtn = document.getElementById('menu-toggle');
+  const overlay = document.getElementById('mobile-menu-overlay');
+  const drawer = document.getElementById('mobile-drawer');
+  const hIcon = document.getElementById('hamburger-icon');
+  const cIcon = document.getElementById('close-icon');
+  const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+  const mobileCtaGroup = document.querySelector('.mobile-cta-group');
+
+  let menuOpen = false;
+
+  if (startsTransparent) {
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 50) {
+        header.classList.remove('bg-transparent', 'py-4', 'sm:py-6', 'header-transparent');
+        header.classList.add('bg-white/95', 'backdrop-blur-md', 'shadow-md', 'py-3', 'sm:py-4');
+      } else {
+        header.classList.remove('bg-white/95', 'backdrop-blur-md', 'shadow-md', 'py-3', 'sm:py-4');
+        header.classList.add('bg-transparent', 'py-4', 'sm:py-6', 'header-transparent');
+      }
+    });
+  }
+
+  function toggleMenu() {
+    menuOpen = !menuOpen;
+    
+    if (menuOpen) {
+      document.body.style.overflow = 'hidden';
+      overlay.classList.remove('pointer-events-none', 'opacity-0');
+      overlay.classList.add('pointer-events-auto', 'opacity-100');
+      drawer.classList.remove('translate-x-full');
+      drawer.classList.add('translate-x-0');
+      
+      hIcon.classList.remove('opacity-100', 'rotate-0', 'scale-100');
+      hIcon.classList.add('opacity-0', 'rotate-90', 'scale-50');
+      
+      cIcon.classList.remove('opacity-0', '-rotate-90', 'scale-50');
+      cIcon.classList.add('opacity-100', 'rotate-0', 'scale-100');
+
+      mobileNavLinks.forEach((link, i) => {
+        setTimeout(() => {
+          link.classList.remove('translate-x-8', 'opacity-0');
+          link.classList.add('translate-x-0', 'opacity-100');
+        }, 150 + i * 70);
+      });
+
+      setTimeout(() => {
+        mobileCtaGroup.classList.remove('translate-x-8', 'opacity-0');
+        mobileCtaGroup.classList.add('translate-x-0', 'opacity-100');
+      }, 400);
+
+    } else {
+      document.body.style.overflow = '';
+      overlay.classList.remove('pointer-events-auto', 'opacity-100');
+      overlay.classList.add('pointer-events-none', 'opacity-0');
+      drawer.classList.remove('translate-x-0');
+      drawer.classList.add('translate-x-full');
+      
+      hIcon.classList.remove('opacity-0', 'rotate-90', 'scale-50');
+      hIcon.classList.add('opacity-100', 'rotate-0', 'scale-100');
+      
+      cIcon.classList.remove('opacity-100', 'rotate-0', 'scale-100');
+      cIcon.classList.add('opacity-0', '-rotate-90', 'scale-50');
+
+      mobileNavLinks.forEach((link) => {
+        link.classList.remove('translate-x-0', 'opacity-100');
+        link.classList.add('translate-x-8', 'opacity-0');
+      });
+      mobileCtaGroup.classList.remove('translate-x-0', 'opacity-100');
+      mobileCtaGroup.classList.add('translate-x-8', 'opacity-0');
+    }
+  }
+
+  toggleBtn.addEventListener('click', toggleMenu);
+  overlay.addEventListener('click', toggleMenu);
+</script>

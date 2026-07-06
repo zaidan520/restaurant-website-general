@@ -1,0 +1,50 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Gallery from '../components/Gallery.astro';
+import Footer from '../components/Footer.astro';
+
+const demoClientData = {
+  slug: 'demo',
+  business_name: 'La Piazza',
+  niche: 'Italian',
+  city: 'New York',
+  phone: '+1 (555) 123-4567',
+  address: '123 Main Street, New York, NY',
+  state: 'NY',
+  email: 'contact@restaurant.com',
+  facebook_url: 'https://facebook.com',
+  instagram_url: 'https://instagram.com',
+  latitude: '29.7416266',
+  longitude: '-87.3086946',
+  google_maps_url: ''
+};
+
+const demoGalleryImages = [
+  { image_url: "https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=600&q=80", alt_text: "Freshly baked pizza" },
+  { image_url: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=600&q=80", alt_text: "Restaurant interior" },
+  { image_url: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=600&q=80", alt_text: "Chef preparing dish" },
+  { image_url: "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=600&q=80", alt_text: "Fresh salad bowl" },
+  { image_url: "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&w=600&q=80", alt_text: "Pasta preparation" },
+  { image_url: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=600&q=80", alt_text: "Signature dish plating" },
+  { image_url: "https://images.unsplash.com/photo-1551218808-94e220e084d2?auto=format&fit=crop&w=600&q=80", alt_text: "Chef kneading dough" },
+  { image_url: "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?auto=format&fit=crop&w=600&q=80", alt_text: "Dessert plate" }
+];
+---
+
+<Layout clientData={demoClientData} pageTitle={`Gallery | ${demoClientData.business_name}`} pageDescription={`Explore the photo gallery for ${demoClientData.business_name}. See our delicious food plating, restaurant interior, and guest experiences.`}>
+  <!-- <Header clientData={demoClientData} basePath="" /> -->
+   <Header clientData={demoClientData} basePath="" transparent={false} />
+  <div class="pt-28 sm:pt-36 bg-brand-bg text-center px-4 animate-fade-in">
+    <h1 class="text-brand-primary text-4xl sm:text-6xl font-bold font-serif-custom tracking-tight">
+      Photo Gallery
+    </h1>
+    <p class="mt-4 text-brand-secondary text-sm sm:text-base max-w-xl mx-auto leading-relaxed">
+      A visual look inside our dining halls, chef preparations, and signature plates.
+    </p>
+  </div>
+  <main>
+    <Gallery clientData={demoClientData} images={demoGalleryImages} basePath="" />
+  </main>
+  <Footer clientData={demoClientData} basePath="" />
+</Layout>

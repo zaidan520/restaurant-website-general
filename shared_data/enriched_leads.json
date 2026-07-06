@@ -1,0 +1,35 @@
+[
+  {
+    "has_website": false,
+    "website_url": null,
+    "domain_mentioned_in_overview": false,
+    "domain_text_found": null,
+    "name": "Sober Cuisine",
+    "latitude": "29.8496307",
+    "longitude": "-95.4090888",
+    "maps_url": "https://www.google.com/maps/place/EZ+Dental+Care/@29.8496307,-95.4090888,12z/data=!4m10!1m2!2m1!1sEast+houston+houston+texas+dentists!3m6!1s0x8640a379067aaaab:0x6c138b79e6bbbf4d!8m2!3d29.7697234!4d-95.2164306!15sCiNFYXN0IGhvdXN0b24gaG91c3RvbiB0ZXhhcyBkZW50aXN0c5IBB2RlbnRpc3TgAQA!16s%2Fg%2F11hd1sp_51?entry=ttu&g_ep=EgoyMDI2MDYyMi4wIKXMDSoASAFQAw%3D%3D",
+    "address": "\n12450 East Fwy Ste 140, Houston, TX 77015, United States",
+    "phone": "+17134513333",
+    "email": "zaidanal0100@gmail.com",
+    "owner_name": null,
+    "lead_stage": "85%",
+    "city": "houston",
+    "state": "texas",
+    "area": "East houston",
+    "niche": "Restaurant",
+    "collect_mode": "no_website_only",
+    "pitch_category": "new_website",
+    "scraped_at": "2026-06-25 19:22:38",
+    "status": "raw",
+    "website_reverify_has_site": true,
+    "website_reverify_domain": "ezdentalclinic.com",
+    "needs_manual_review": true,
+    "facebook_url": "https://www.facebook.com/ezdental.clinictx/",
+    "instagram_url": null,
+    "email_source": "facebook_bio",
+    "missing_info": [
+      "Possible website found on recheck: ezdentalclinic.com"
+    ],
+    "enriched_at": "2026-06-25 19:28:02"
+  }
+]

@@ -1,0 +1,147 @@
+---
+import '../styles/global.css';
+
+const { clientData, pageTitle, pageDescription } = Astro.props;
+
+// Determine cuisine theme based on business name
+const getCuisineTheme = (name) => {
+  const nameLower = (name || "").toLowerCase();
+  if (nameLower.includes("pizza") || nameLower.includes("italian") || nameLower.includes("pasta") || nameLower.includes("mario") || nameLower.includes("trattoria")) {
+    return {
+      primary: "#8B4513",
+      secondary: "#D2691E",
+      accent: "#E86A10",
+      textColor: "#2C1810",
+      bgColor: "#FDFBF7",
+      fontHeading: "'Playfair Display', serif",
+      fontBody: "'Inter', sans-serif",
+      fontHeadingLink: "https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Inter:wght@300;400;500;600;700&display=swap"
+    };
+  }
+  if (nameLower.includes("sushi") || nameLower.includes("japanese") || nameLower.includes("ramen") || nameLower.includes("tokyo")) {
+    return {
+      primary: "#2F3E2F",
+      secondary: "#D4A373",
+      accent: "#2F3E2F",
+      textColor: "#2F3E2F",
+      bgColor: "#F9F9F7",
+      fontHeading: "'Inter', sans-serif",
+      fontBody: "'Inter', sans-serif",
+      fontHeadingLink: "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+    };
+  }
+  if (nameLower.includes("taco") || nameLower.includes("mexican") || nameLower.includes("burrito") || nameLower.includes("cantina")) {
+    return {
+      primary: "#D45E0D",
+      secondary: "#E8A838",
+      accent: "#D45E0D",
+      textColor: "#3A1A05",
+      bgColor: "#FDF5E6",
+      fontHeading: "'DM Sans', sans-serif",
+      fontBody: "'DM Sans', sans-serif",
+      fontHeadingLink: "https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap"
+    };
+  }
+  if (nameLower.includes("steak") || nameLower.includes("grill") || nameLower.includes("barbecue") || nameLower.includes("bbq") || nameLower.includes("smoke")) {
+    return {
+      primary: "#D4AF37",
+      secondary: "#1A1A1A",
+      accent: "#D4AF37",
+      textColor: "#F5F5F5",
+      bgColor: "#121212",
+      fontHeading: "'Cormorant Garamond', serif",
+      fontBody: "'Inter', sans-serif",
+      fontHeadingLink: "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&family=Inter:wght@300;400;500;600;700&display=swap"
+    };
+  }
+  if (nameLower.includes("cafe") || nameLower.includes("coffee") || nameLower.includes("bakery") || nameLower.includes("bread") || nameLower.includes("sweet")) {
+    return {
+      primary: "#A68A7A",
+      secondary: "#E2B9B9",
+      accent: "#A68A7A",
+      textColor: "#3E2723",
+      bgColor: "#FDFBF7",
+      fontHeading: "'Lora', serif",
+      fontBody: "'Inter', sans-serif",
+      fontHeadingLink: "https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Inter:wght@300;400;500;600;700&display=swap"
+    };
+  }
+  // Default Bistly Green theme
+  return {
+    primary: "#1f2a1d",
+    secondary: "#4b5b47",
+    accent: "#85AB8B",
+    textColor: "#1f2a1d",
+    bgColor: "#fdfbf7",
+    fontHeading: "'Playfair Display', serif",
+    fontBody: "'Inter', sans-serif",
+    fontHeadingLink: "https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Inter:wght@300;400;500;600;700&display=swap"
+  };
+};
+
+const theme = getCuisineTheme(clientData?.business_name);
+const finalTitle = pageTitle || `${clientData?.business_name || 'Restaurant'} | Fine Dining & Reservations`;
+const finalDescription = pageDescription || `Welcome to ${clientData?.business_name || 'our restaurant'} located in ${clientData?.city || 'your area'}. Enjoy freshly prepared cuisine and reserve a table online today.`;
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" href="/favicon.ico" />
+		<meta name="generator" content={Astro.generator} />
+		<title>{finalTitle}</title>
+    <meta name="description" content={finalDescription} />
+    
+    <!-- OpenGraph -->
+    <meta property="og:title" content={finalTitle} />
+    <meta property="og:description" content={finalDescription} />
+    <meta property="og:type" content="website" />
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href={theme.fontHeadingLink} />
+
+    <!-- Schema.org Restaurant Structured Data -->
+    {clientData && (
+      <script type="application/ld+json" is:inline set:html={JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "Restaurant",
+        "name": clientData.business_name,
+        "image": clientData.demo_url ? `${clientData.demo_url}/favicon.svg` : "",
+        "telephone": clientData.phone || "",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": clientData.address || "",
+          "addressLocality": clientData.city || "",
+          "addressRegion": clientData.state || ""
+        },
+        "geo": clientData.latitude && clientData.longitude ? {
+          "@type": "GeoCoordinates",
+          "latitude": clientData.latitude,
+          "longitude": clientData.longitude
+        } : undefined,
+        "url": clientData.demo_url || "",
+        "servesCuisine": clientData.niche || "Restaurant"
+      })} />
+    )}
+	</head>
+	<body>
+		<slot />
+	</body>
+</html>
+
+<style is:global define:vars={{
+  'primary-color': theme.primary,
+  'secondary-color': theme.secondary,
+  'accent-color': theme.accent,
+  'text-color': theme.textColor,
+  'bg-color': theme.bgColor,
+  'font-heading': theme.fontHeading,
+  'font-body': theme.fontBody,
+  'button-radius': '9999px',
+  'card-radius': '24px'
+}}></style>

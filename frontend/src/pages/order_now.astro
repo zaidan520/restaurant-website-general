@@ -1,0 +1,222 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+const demoClientData = {
+  slug: 'demo',
+  business_name: 'La Piazza',
+  niche: 'Italian',
+  city: 'New York',
+  phone: '+1 (555) 123-4567',
+  address: '123 Main Street, New York, NY',
+  state: 'NY',
+  email: 'contact@restaurant.com',
+  facebook_url: 'https://facebook.com',
+  instagram_url: 'https://instagram.com',
+  latitude: '29.7416266',
+  longitude: '-87.3086946',
+  google_maps_url: ''
+};
+
+const demoMenuItems = [
+  {
+    name: "Margherita Classica",
+    price: "22",
+    image_url: "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?auto=format&fit=crop&w=400&q=80"
+  },
+  {
+    name: "Truffle Mushroom Risotto",
+    price: "28",
+    image_url: "https://images.unsplash.com/photo-1476124369491-e7addf5db371?auto=format&fit=crop&w=400&q=80"
+  },
+  {
+    name: "Spaghetti Carbonara",
+    price: "24",
+    image_url: "https://images.unsplash.com/photo-1612874742237-6526221588e3?auto=format&fit=crop&w=400&q=80"
+  },
+  {
+    name: "Tiramisu della Casa",
+    price: "14",
+    image_url: "https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?auto=format&fit=crop&w=400&q=80"
+  },
+  {
+    name: "Panna Cotta",
+    price: "12",
+    image_url: "https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=400&q=80"
+  }
+];
+
+const url = new URL(Astro.url);
+const preselectedItem = url.searchParams.get('item');
+const preselectedPrice = url.searchParams.get('price');
+---
+
+<Layout clientData={demoClientData} pageTitle={`Order Now | ${demoClientData.business_name}`} pageDescription={`Order your favorite dishes from ${demoClientData.business_name}. Fresh Italian cuisine delivered to your door.`}>
+  <!-- <Header clientData={demoClientData} basePath="/" /> -->
+   <Header clientData={demoClientData} basePath="" transparent={false} />
+  <main class="bg-brand-bg pt-20">
+    <div class="pt-28 sm:pt-36 text-center px-4 animate-fade-in">
+      <h1 class="text-brand-primary text-4xl sm:text-6xl font-bold font-serif-custom tracking-tight">
+        Order Now
+      </h1>
+      <p class="mt-4 text-brand-secondary text-sm sm:text-base max-w-xl mx-auto leading-relaxed">
+        Fill in your details below and we'll prepare your order.
+      </p>
+    </div>
+
+    <section class="py-16 px-4 sm:px-6 md:px-10">
+      <div class="max-w-2xl mx-auto">
+        <div class="bg-white rounded-card border border-brand-primary/5 shadow-xl p-8 sm:p-12">
+          <div class="mb-8">
+            <label for="menu-item-select" class="block text-sm font-semibold text-brand-primary mb-2">Select Menu Item</label>
+            <select id="menu-item-select" class="w-full border border-brand-primary/15 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-accent bg-brand-bg/20">
+              <option value="">-- Choose an item --</option>
+              {demoMenuItems.map((item) => (
+                <option value={item.name} data-price={item.price}>
+                  {item.name} - ${item.price}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div id="selected-item-bill" class="hidden mb-8 p-4 bg-brand-primary/5 rounded-xl border border-brand-primary/10">
+            <h3 class="text-brand-primary font-bold font-serif-custom mb-2">Your Selection</h3>
+            <div class="flex justify-between items-center">
+              <div>
+                <p id="selected-item-name" class="text-brand-primary font-medium"></p>
+                <p class="text-brand-secondary text-sm">1x</p>
+              </div>
+              <span id="selected-item-price" class="text-brand-primary font-bold text-lg"></span>
+            </div>
+          </div>
+
+          <form id="order-form" class="space-y-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div>
+                <label for="name" class="block text-sm font-semibold text-brand-primary mb-2">Full Name</label>
+                <input type="text" id="name" name="name" required class="w-full border border-brand-primary/15 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-accent bg-brand-bg/20" placeholder="e.g. John Doe" />
+              </div>
+              <div>
+                <label for="phone" class="block text-sm font-semibold text-brand-primary mb-2">Phone Number</label>
+                <input type="tel" id="phone" name="phone" required class="w-full border border-brand-primary/15 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-accent bg-brand-bg/20"                 placeholder="e.g. +1 (555) 123-4567" />
+              </div>
+            </div>
+
+            <div>
+              <label for="address" class="block text-sm font-semibold text-brand-primary mb-2">Delivery Address</label>
+              <textarea id="address" name="address" rows="3" required class="w-full border border-brand-primary/15 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-accent bg-brand-bg/20" placeholder="Enter your full address"></textarea>
+            </div>
+
+            <div>
+              <label for="notes" class="block text-sm font-semibold text-brand-primary mb-2">Special Instructions (Optional)</label>
+              <textarea id="notes" name="notes" rows="2" class="w-full border border-brand-primary/15 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-accent bg-brand-bg/20" placeholder="Allergies, extra napkins, etc..."></textarea>
+            </div>
+
+            <div id="error-message" class="hidden text-red-600 text-sm font-medium"></div>
+
+            <button type="submit" id="submit-btn" class="w-full bg-green-600 text-white hover:bg-green-700 font-semibold py-3.5 rounded-btn shadow-md transition-all flex items-center justify-center gap-2">
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+              Order via WhatsApp
+            </button>
+          </form>
+
+          <div id="success-banner" class="hidden mt-8 text-center py-8 space-y-4 animate-fade-in">
+            <div class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto">
+              <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <h3 class="text-brand-primary text-2xl font-bold font-serif-custom">Order Placed!</h3>
+            <p class="text-brand-secondary text-sm max-w-md mx-auto">
+              Your order has been sent to the restaurant. We'll contact you shortly to confirm.
+            </p>
+            <a href="/menu" class="inline-block bg-brand-primary text-brand-bg hover:opacity-90 font-medium px-6 py-2.5 rounded-btn text-sm transition-colors">
+              Continue Browsing Menu
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <Footer clientData={demoClientData} basePath="/" />
+</Layout>
+
+<script>
+  const form = document.getElementById('order-form');
+  const successBanner = document.getElementById('success-banner');
+  const errorMsg = document.getElementById('error-message');
+  const submitBtn = document.getElementById('submit-btn');
+  const menuSelect = document.getElementById('menu-item-select');
+  const selectedBill = document.getElementById('selected-item-bill');
+  const selectedItemName = document.getElementById('selected-item-name');
+  const selectedItemPrice = document.getElementById('selected-item-price');
+  const phone = '{demoClientData.phone}'.replace(/[^0-9]/g, '');
+
+  const preselectedItem = `{preselectedItem || ''}`;
+  const preselectedPrice = `{preselectedPrice || '0'}`;
+
+  let activeItem = preselectedItem;
+  let activePrice = preselectedPrice;
+
+  function updateSelection() {
+    const selectedOption = menuSelect.options[menuSelect.selectedIndex];
+    activeItem = selectedOption.value;
+    activePrice = selectedOption.dataset.price || '0';
+
+    if (!activeItem) {
+      selectedBill.classList.add('hidden');
+      return;
+    }
+
+    selectedItemName.textContent = activeItem;
+    selectedItemPrice.textContent = `$${activePrice}`;
+    selectedBill.classList.remove('hidden');
+  }
+
+  if (menuSelect) {
+    menuSelect.addEventListener('change', updateSelection);
+    if (preselectedItem) {
+      menuSelect.value = preselectedItem;
+      updateSelection();
+    }
+  }
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    errorMsg.classList.add('hidden');
+
+    const formData = new FormData(form);
+    const name = formData.get('name');
+    const phoneInput = formData.get('phone');
+    const address = formData.get('address');
+    const notes = formData.get('notes') || '';
+
+    if (!name || !phoneInput || !address) {
+      errorMsg.innerText = 'Please fill in all required fields.';
+      errorMsg.classList.remove('hidden');
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span>Processing...</span>';
+
+    let message = `New Order from ${name}%0A%0A`;
+    if (activeItem) {
+      message += `Item: ${activeItem}%0A`;
+      message += `Price: $${activePrice}%0A%0A`;
+    }
+    message += `Phone: ${phoneInput}%0A`;
+    message += `Address: ${address}%0A`;
+    if (notes) message += `Notes: ${notes}%0A`;
+    message += `%0ATotal: $${activePrice || '0'}`;
+
+    const whatsappUrl = `https://wa.me/${phone}?text=${message}`;
+
+    setTimeout(() => {
+      window.open(whatsappUrl, '_blank');
+      form.classList.add('hidden');
+      successBanner.classList.remove('hidden');
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = `<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45 4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893 11.821 11.821 0 00-3.48-8.413z"/></svg> Order via WhatsApp`;
+    }, 500);
+  });
+</script>

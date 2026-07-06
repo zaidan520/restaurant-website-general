@@ -1,0 +1,127 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import MenuGrid from '../../components/MenuGrid.astro';
+import Footer from '../../components/Footer.astro';
+
+const { slug } = Astro.params;
+
+let clientData = null;
+let menuData = [];
+let categories = [];
+let menuItems = [];
+
+try {
+  const clientRes = await fetch(`http://localhost:8000/api/clients/${slug}`);
+  if (clientRes.status === 404) {
+    return Astro.redirect('/404');
+  }
+  clientData = await clientRes.json();
+
+  const menuRes = await fetch(`http://localhost:8000/api/menu/${slug}`);
+  if (menuRes.ok) {
+    const data = await menuRes.json();
+    categories = data;
+    menuItems = data.flatMap(c => c.items || []);
+    menuData = data;
+  }
+} catch (error) {
+  console.error("Failed to load menu data:", error);
+}
+
+if (!clientData) {
+  return Astro.redirect('/404');
+}
+---
+
+<Layout clientData={clientData} pageTitle={`Our Menu | ${clientData.business_name}`} pageDescription={`Explore the complete culinary menu for ${clientData.business_name}. We serve freshly crafted dishes and special collections.`}>
+  <Header clientData={clientData} basePath={`/${slug}`} transparent={false}/>
+  <div class="pt-28 sm:pt-36 bg-brand-bg text-center px-4 animate-fade-in">
+    <h1 class="text-brand-primary text-4xl sm:text-6xl font-bold font-serif-custom tracking-tight">
+      Our Menu
+    </h1>
+    <p class="mt-4 text-brand-secondary text-sm sm:text-base max-w-xl mx-auto leading-relaxed">
+      Browse through our selections of appetizers, mains, specialties, and desserts.
+    </p>
+  </div>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="mb-6 text-center">
+      <button id="toggleAddForm" class="inline-flex items-center gap-2 bg-green-700 hover:bg-green-800 text-white font-medium py-2 px-6 rounded-full transition">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        Add Menu Item
+      </button>
+    </div>
+
+    <div id="addItemForm" class="hidden max-w-2xl mx-auto mb-8">
+      <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+        <h3 class="text-lg font-bold text-gray-900 mb-4">Add Menu Item</h3>
+        <form id="menuAddForm" class="space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+              <input type="text" id="itemName" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-600 focus:border-transparent outline-none" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Price</label>
+              <input type="text" id="itemPrice" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-600 focus:border-transparent outline-none" placeholder="e.g. 1200" />
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+            <select id="itemCategory" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-600 focus:border-transparent outline-none">
+              {categories.map(c => `<option value="${c.id}">${c.name}</option>`)}
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+            <textarea id="itemDescription" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-600 focus:border-transparent outline-none"></textarea>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Image URL</label>
+            <input type="text" id="itemImageUrl" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-600 focus:border-transparent outline-none" />
+          </div>
+          <div class="flex gap-2">
+            <button type="submit" class="bg-green-700 hover:bg-green-800 text-white font-medium py-2 px-6 rounded-lg transition">Add Item</button>
+            <button type="button" id="cancelAdd" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <main>
+      <MenuGrid menuData={menuData} basePath={`/${slug}`} />
+    </main>
+  </div>
+
+  <Footer clientData={clientData} basePath={`/${slug}`} />
+</Layout>
+
+<script>
+  const API_BASE = 'http://localhost:8000/api';
+  const currentSlug = '{slug}';
+
+  document.getElementById('toggleAddForm')?.addEventListener('click', () => {
+    document.getElementById('addItemForm').classList.remove('hidden');
+  });
+
+  document.getElementById('cancelAdd')?.addEventListener('click', () => {
+    document.getElementById('addItemForm').classList.add('hidden');
+  });
+
+  document.getElementById('menuAddForm')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const data = {
+      name: document.getElementById('itemName').value,
+      description: document.getElementById('itemDescription').value,
+      price: document.getElementById('itemPrice').value,
+      category_id: parseInt(document.getElementById('itemCategory').value) || null,
+      image_url: document.getElementById('itemImageUrl').value
+    };
+    fetch(API_BASE + '/menu/' + currentSlug, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    }).then(res => res.ok ? window.location.reload() : alert('Failed'));
+  });
+</script>

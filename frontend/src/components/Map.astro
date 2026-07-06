@@ -1,0 +1,25 @@
+---
+const { clientData } = Astro.props;
+
+const getEmbedUrl = (url) => {
+  if (!url) return null;
+  if (url.includes("embed") || url.includes("pb=")) return url;
+  return `https://maps.google.com/maps?q=${encodeURIComponent(clientData?.address || '')}+${encodeURIComponent(clientData?.city || '')}&t=&z=13&ie=UTF8&iwloc=&output=embed`;
+};
+
+const embedUrl = getEmbedUrl(clientData?.google_maps_url) || 
+  (clientData?.city ? `https://maps.google.com/maps?q=${encodeURIComponent(clientData.address || '')}+${encodeURIComponent(clientData.city)}&t=&z=13&ie=UTF8&iwloc=&output=embed` : null);
+---
+
+{embedUrl && (
+  <section class="w-full h-[450px] bg-brand-bg relative overflow-hidden border-t border-brand-primary/5">
+    <iframe
+      title="Restaurant Location Map"
+      class="w-full h-full border-0 grayscale contrast-115"
+      src={embedUrl}
+      allowfullscreen=""
+      loading="lazy"
+      referrerpolicy="no-referrer-when-downgrade"
+    ></iframe>
+  </section>
+)}

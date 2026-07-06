@@ -1,0 +1,49 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Contact from '../components/Contact.astro';
+import Footer from '../components/Footer.astro';
+
+const demoClientData = {
+  slug: 'demo',
+  business_name: 'La Piazza',
+  niche: 'Italian',
+  city: 'New York',
+  phone: '+1 (555) 123-4567',
+  address: '123 Main Street, New York, NY',
+  state: 'NY',
+  email: 'contact@restaurant.com',
+  facebook_url: 'https://facebook.com',
+  instagram_url: 'https://instagram.com',
+  latitude: '29.7416266',
+  longitude: '-87.3086946',
+  google_maps_url: ''
+};
+
+const demoHours = [
+  { day_of_week: 0, open_time: "12:00", close_time: "23:00", is_closed: false },
+  { day_of_week: 1, open_time: "12:00", close_time: "23:00", is_closed: false },
+  { day_of_week: 2, open_time: "12:00", close_time: "23:00", is_closed: false },
+  { day_of_week: 3, open_time: "12:00", close_time: "23:00", is_closed: false },
+  { day_of_week: 4, open_time: "12:00", close_time: "23:30", is_closed: false },
+  { day_of_week: 5, open_time: "12:00", close_time: "23:30", is_closed: false },
+  { day_of_week: 6, open_time: "12:00", close_time: "22:30", is_closed: false }
+];
+---
+
+<Layout clientData={demoClientData} pageTitle={`Contact & Hours | ${demoClientData.business_name}`} pageDescription={`Get directions, view phone, email, and opening hours for ${demoClientData.business_name}.`}>
+  <!-- <Header clientData={demoClientData} basePath="" /> -->
+   <Header clientData={demoClientData} basePath="" transparent={false} />
+  <main class="bg-brand-bg pt-20">
+    <div class="pt-28 sm:pt-36 bg-brand-bg text-center px-4 animate-fade-in">
+      <h1 class="text-brand-primary text-4xl sm:text-6xl font-bold font-serif-custom tracking-tight">
+        Get in Touch
+      </h1>
+      <p class="mt-4 text-brand-secondary text-sm sm:text-base max-w-xl mx-auto leading-relaxed">
+        Have questions about our dishes, hosting private events, or planning catering? Reach out directly.
+      </p>
+    </div>
+    <Contact clientData={demoClientData} hours={demoHours} basePath="" />
+  </main>
+  <Footer clientData={demoClientData} basePath="" />
+</Layout>

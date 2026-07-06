@@ -1,0 +1,77 @@
+---
+import BoomerangVideoBg from './BoomerangVideoBg.astro';
+
+const { clientData, basePath = '' } = Astro.props;
+const slug = clientData?.slug || '';
+const normalizedBase = basePath === '/' ? '' : basePath;
+
+const bgVideo = 'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260511_131941_d136af49-e243-493a-be14-6ff3f24e09e6.mp4';
+
+// Cuisine-aware fallback images
+const getCuisineImage = (name) => {
+  const nameLower = (name || "").toLowerCase();
+  if (nameLower.includes("pizza") || nameLower.includes("italian") || nameLower.includes("pasta") || nameLower.includes("mario")) {
+    return 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=1200&q=80';
+  }
+  if (nameLower.includes("sushi") || nameLower.includes("japanese") || nameLower.includes("ramen")) {
+    return 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=1200&q=80';
+  }
+  if (nameLower.includes("taco") || nameLower.includes("mexican") || nameLower.includes("burrito")) {
+    return 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?auto=format&fit=crop&w=1200&q=80';
+  }
+  if (nameLower.includes("steak") || nameLower.includes("grill") || nameLower.includes("bbq")) {
+    return 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1200&q=80';
+  }
+  return 'https://images.unsplash.com/photo-1551218808-94e220e084d2?auto=format&fit=crop&w=1200&q=80';
+};
+
+const heroImage = getCuisineImage(clientData?.business_name);
+const headline = clientData?.niche ? `Authentic ${clientData.niche} Experience` : "A Unique Culinary Experience";
+const tagline = clientData?.city ? `Proudly serving the finest dishes in the heart of ${clientData.city}.` : "Where quality meets passion in every plate.";
+const orderNowHref = `${normalizedBase}/order_now`;
+
+const bgImage = 'https://cdn.magicdecor.in/com/2023/09/29161837/wallpaper-for-Restaurent-2-Mockup.jpg';
+---
+
+  <section class="relative w-full h-screen flex items-center justify-center overflow-hidden animate-fade-in">
+    <div class="absolute inset-0 z-0 animate-ken-burns">
+      <img src={bgImage} alt="" class="w-full h-full object-cover" loading="eager" />
+    </div>
+    <div class="absolute inset-0 bg-brand-primary/50 z-[1]"></div>
+    
+    <!-- Floating food animations -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none z-[2]">
+      <div class="absolute top-1/4 left-[10%] w-20 h-20 opacity-10 animate-float-slow delay-100">
+        <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=200&q=80" alt="" class="w-full h-full object-cover rounded-full" loading="lazy" />
+      </div>
+      <div class="absolute top-1/3 right-[15%] w-16 h-16 opacity-10 animate-float-medium delay-300">
+        <img src="https://images.unsplash.com/photo-1473093295043-ef0f3d36138a?auto=format&fit=crop&w=200&q=80" alt="" class="w-full h-full object-cover rounded-full" loading="lazy" />
+      </div>
+      <div class="absolute bottom-1/3 left-[20%] w-24 h-24 opacity-10 animate-float-slow delay-500">
+        <img src="https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&w=200&q=80" alt="" class="w-full h-full object-cover rounded-full" loading="lazy" />
+      </div>
+    </div>
+    
+    <div class="relative z-10 text-center max-w-4xl px-4 flex flex-col items-center">
+      {clientData?.rating && (
+        <div class="flex items-center gap-1.5 bg-white/90 backdrop-blur-md rounded-full px-4 py-1.5 mb-6 text-brand-primary text-xs font-semibold shadow-sm animate-fade-up">
+          <svg class="w-4 h-4 text-yellow-500 fill-yellow-500" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+          <span>{clientData.rating} Rating on Google</span>
+        </div>
+      )}
+      <h1 class="text-white text-4xl sm:text-6xl md:text-7xl font-bold font-serif-custom leading-tight tracking-tight animate-fade-up delay-100">
+        {clientData?.business_name}
+      </h1>
+      <p class="mt-6 text-white/90 text-base sm:text-lg md:text-xl max-w-2xl leading-relaxed animate-fade-up delay-200">
+        {tagline}
+      </p>
+      <div class="mt-10 flex flex-wrap gap-4 justify-center animate-fade-up delay-300">
+        <a href={orderNowHref} class="bg-brand-primary text-brand-bg hover:opacity-90 font-medium px-8 py-3.5 rounded-btn shadow-lg transition-all transform hover:-translate-y-0.5">
+          Order Now
+        </a>
+        <a href={`${normalizedBase}/menu`} class="bg-white/10 hover:bg-white/20 text-white font-medium px-8 py-3.5 rounded-btn border border-white/30 backdrop-blur-sm transition-all transform hover:-translate-y-0.5">
+          View Menu
+        </a>
+      </div>
+    </div>
+  </section>

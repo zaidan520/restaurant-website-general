@@ -1,0 +1,99 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import MenuGrid from '../components/MenuGrid.astro';
+import Footer from '../components/Footer.astro';
+
+const demoClientData = {
+  slug: 'demo',
+  business_name: 'La Piazza',
+  niche: 'Italian',
+  city: 'New York',
+  phone: '+1 (555) 123-4567',
+  address: '123 Main Street, New York, NY',
+  state: 'NY',
+  email: 'contact@restaurant.com',
+  facebook_url: 'https://facebook.com',
+  instagram_url: 'https://instagram.com',
+  latitude: '29.7416266',
+  longitude: '-87.3086946',
+  google_maps_url: ''
+};
+
+const demoMenuData = [
+  {
+    category: "Starters",
+    items: [
+      {
+        name: "Bruschetta al Pomodoro",
+        description: "Grilled sourdough rubbed with garlic, topped with vine-ripened tomatoes, fresh basil, and extra virgin olive oil.",
+        price: "1200",
+        image_url: "https://images.unsplash.com/photo-1572695157366-5e585ab2b69f?auto=format&fit=crop&w=400&q=80"
+      },
+      {
+        name: "Calamari Fritti",
+        description: "Lightly battered squid rings fried to golden perfection, served with lemon aioli and marinara dip.",
+        price: "1800",
+        image_url: "https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?auto=format&fit=crop&w=400&q=80"
+      }
+    ]
+  },
+  {
+    category: "Mains",
+    items: [
+      {
+        name: "Margherita Classica",
+        description: "San Marzano tomato sauce, fresh mozzarella di bufala, basil, extra virgin olive oil on a wood-fired crust.",
+        price: "2200",
+        image_url: "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?auto=format&fit=crop&w=400&q=80"
+      },
+      {
+        name: "Truffle Mushroom Risotto",
+        description: "Arborio rice slow-cooked with wild mushrooms, black truffle oil, aged parmesan, and fresh thyme.",
+        price: "2800",
+        image_url: "https://images.unsplash.com/photo-1476124369491-e7addf5db371?auto=format&fit=crop&w=400&q=80"
+      },
+      {
+        name: "Spaghetti Carbonara",
+        description: "Guanciale-cured bacon, pecorino romano, fresh egg yolk, and black pepper tossed with al dente spaghetti.",
+        price: "2400",
+        image_url: "https://images.unsplash.com/photo-1612874742237-6526221588e3?auto=format&fit=crop&w=400&q=80"
+      }
+    ]
+  },
+  {
+    category: "Desserts",
+    items: [
+      {
+        name: "Tiramisu della Casa",
+        description: "House-made ladyfingers, mascarpone cream, espresso-soaked layers, dusted with Valrhona cocoa.",
+        price: "1400",
+        image_url: "https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?auto=format&fit=crop&w=400&q=80"
+      },
+      {
+        name: "Panna Cotta",
+        description: "Silky vanilla bean panna cotta served with a seasonal berry compote and mint leaf.",
+        price: "1200",
+        image_url: "https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=400&q=80"
+      }
+    ]
+  }
+];
+---
+
+<Layout clientData={demoClientData} pageTitle={`Our Menu | ${demoClientData.business_name}`} pageDescription={`Explore the complete culinary menu for ${demoClientData.business_name}. Freshly crafted Italian dishes and special collections.`}>
+  <!-- <Header clientData={demoClientData} basePath="" /> -->
+   <Header clientData={demoClientData} basePath="" transparent={false} />
+  <div class="pt-28 sm:pt-36 bg-brand-bg text-center px-4 animate-fade-in">
+    <h1 class="text-brand-primary text-4xl sm:text-6xl font-bold font-serif-custom tracking-tight">
+      Our Menu
+    </h1>
+    <p class="mt-4 text-brand-secondary text-sm sm:text-base max-w-xl mx-auto leading-relaxed">
+      Browse through our selections of appetizers, mains, specialties, and desserts.
+    </p>
+  </div>
+  <main>
+    <MenuGrid menuData={demoMenuData} basePath="" />
+  </main>
+  <Footer clientData={demoClientData} basePath="" />
+</Layout>

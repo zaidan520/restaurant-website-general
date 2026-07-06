@@ -1,0 +1,51 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import Hero from '../../components/Hero.astro';
+import FeaturedMenu from '../../components/FeaturedMenu.astro';
+import OrderOnline from '../../components/OrderOnline.astro';
+import Testimonials from '../../components/Testimonials.astro';
+import Footer from '../../components/Footer.astro';
+
+const { slug } = Astro.params;
+
+let clientData = null;
+let menuItems = [];
+let testimonials = [];
+
+try {
+  const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8000';
+  
+  const clientRes = await fetch(`${API_URL}/api/clients/${slug}`);
+  if (clientRes.status === 404) {
+    return Astro.redirect('/404');
+  }
+  clientData = await clientRes.json();
+
+  const menuRes = await fetch(`${API_URL}/api/menu/${slug}?featured=true`);
+  if (menuRes.ok) {
+    menuItems = await menuRes.json();
+  }
+
+  const testimonialsRes = await fetch(`${API_URL}/api/testimonials/${slug}`);
+  if (testimonialsRes.ok) {
+    testimonials = await testimonialsRes.json();
+  }
+} catch (error) {
+  console.error("Failed to load client data in Home page:", error);
+}
+
+if (!clientData) {
+  return Astro.redirect('/404');
+}
+---
+<Layout clientData={clientData}>
+  <Header clientData={clientData} basePath={`/${slug}`} />
+  <main>
+    <Hero clientData={clientData} basePath={`/${slug}`} />
+    <FeaturedMenu clientData={clientData} menuItems={menuItems} basePath={`/${slug}`} />
+    <OrderOnline clientData={clientData} menuItems={menuItems} basePath={`/${slug}`} />
+    <Testimonials testimonials={testimonials} />
+  </main>
+  <Footer clientData={clientData} basePath={`/${slug}`} />
+</Layout>

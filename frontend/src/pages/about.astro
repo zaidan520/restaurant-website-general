@@ -1,0 +1,65 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+const demoClientData = {
+  slug: 'demo',
+  business_name: 'La Piazza',
+  niche: 'Italian',
+  city: 'New York',
+  phone: '+1 (555) 123-4567',
+  address: '123 Main Street, New York, NY',
+  state: 'NY',
+  email: 'contact@restaurant.com',
+  facebook_url: 'https://facebook.com',
+  instagram_url: 'https://instagram.com',
+  latitude: '29.7416266',
+  longitude: '-87.3086946',
+  google_maps_url: ''
+};
+
+const aboutText = `Our passion for authentic Italian cooking runs deep. Using traditional methods, our dough is prepared fresh daily and cooked in a high-temperature oven to create the perfect crispy crust. We source import-quality tomatoes, fresh mozzarella, and olive oil to make sure every bite tastes like Napoli.
+
+At ${demoClientData.business_name}, we believe dining is about more than just food — it's about sharing a moment. In our warm and inviting space, we serve dishes prepared with the finest ingredients and a high attention to detail. Whether you are dining with family, friends, or a special guest, we look forward to making you feel at home.`;
+---
+
+<Layout clientData={demoClientData} pageTitle={`About Us | ${demoClientData.business_name}`} pageDescription={`Learn about the heritage, philosophy, and fresh ingredients that define ${demoClientData.business_name}.`}>
+  <!-- <Header clientData={demoClientData} basePath="" /> -->
+   <Header clientData={demoClientData} basePath="" transparent={false} />
+  <main class="bg-brand-bg">
+    <div class="pt-28 sm:pt-36 text-center px-4 animate-fade-in">
+      <h1 class="text-brand-primary text-4xl sm:text-6xl font-bold font-serif-custom tracking-tight">
+        Our Story
+      </h1>
+      <p class="mt-4 text-brand-secondary text-sm sm:text-base max-w-xl mx-auto leading-relaxed">
+        Discover the passion, values, and culinary techniques behind {demoClientData.business_name}.
+      </p>
+    </div>
+
+    <section class="max-w-7xl mx-auto py-20 px-4 sm:px-6 md:px-10 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+      <div class="space-y-6 animate-fade-up">
+        <h2 class="text-brand-primary text-3xl font-bold font-serif-custom">
+          Crafting Memorable Flavors
+        </h2>
+        <p class="text-brand-secondary text-base leading-relaxed">
+          {aboutText}
+        </p>
+        <div class="pt-4">
+          <a href="/order_now" class="inline-block bg-brand-primary text-brand-bg hover:opacity-90 font-medium px-8 py-3.5 rounded-btn shadow-md transition-colors">
+            Order Now
+          </a>
+        </div>
+      </div>
+      
+      <div class="rounded-card overflow-hidden h-96 shadow-xl animate-fade-up delay-100">
+        <img 
+          src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=800&q=80" 
+          alt="Chef prepping dining space" 
+          class="w-full h-full object-cover" 
+        />
+      </div>
+    </section>
+  </main>
+  <Footer clientData={demoClientData} basePath="" />
+</Layout>

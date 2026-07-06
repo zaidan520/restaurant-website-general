@@ -1,0 +1,41 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+
+const { slug } = Astro.params;
+
+let clientData = null;
+
+try {
+  const clientRes = await fetch(`http://localhost:8000/api/clients/${slug}`);
+  if (clientRes.status === 404) {
+    return Astro.redirect('/404');
+  }
+  clientData = await clientRes.json();
+} catch (error) {
+  console.error("Failed to load client data for Reservations page:", error);
+}
+
+if (!clientData) {
+  return Astro.redirect('/404');
+}
+---
+
+<Layout clientData={clientData} pageTitle={`Order Now | ${clientData.business_name}`} pageDescription={`Order your favorite dishes from ${clientData.business_name}.`}>
+  <Header clientData={clientData} basePath={`/${slug}`} transparent={false} />
+  <main class="pt-20 bg-brand-bg">
+    <div class="py-24 px-4 sm:px-6 md:px-10">
+      <div class="max-w-2xl mx-auto text-center">
+        <h1 class="text-brand-primary text-4xl sm:text-5xl font-bold font-serif-custom tracking-tight mb-4">Order Now</h1>
+        <p class="text-brand-secondary text-base sm:text-lg leading-relaxed max-w-xl mx-auto mb-8">
+          Browse our menu and order your favorite dishes directly via WhatsApp.
+        </p>
+        <a href={`/${slug}/menu`} class="inline-block bg-brand-primary text-brand-bg hover:opacity-90 font-medium px-8 py-3.5 rounded-btn shadow-md transition-colors">
+          View Menu
+        </a>
+      </div>
+    </div>
+  </main>
+  <Footer clientData={clientData} basePath={`/${slug}`} />
+</Layout>

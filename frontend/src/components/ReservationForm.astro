@@ -1,0 +1,157 @@
+---
+const { clientData } = Astro.props;
+const slug = clientData?.slug || '';
+---
+
+<section class="py-24 bg-brand-bg px-4 sm:px-6 md:px-10">
+  <div class="max-w-2xl mx-auto bg-white p-8 sm:p-12 rounded-card border border-brand-primary/5 shadow-xl">
+    
+    <!-- Title -->
+    <div class="text-center mb-10">
+      <h2 class="text-brand-primary text-3xl font-bold font-serif-custom tracking-tight">
+        Book a Table
+      </h2>
+      <p class="mt-2 text-brand-secondary text-sm">
+        Reserve your dining table online. Confirmed instantly.
+      </p>
+    </div>
+    
+    <!-- Success Banner -->
+    <div id="reservation-success" class="hidden text-center py-8 space-y-4 animate-fade-in">
+      <div class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto">
+        <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+      </div>
+      <h3 class="text-brand-primary text-2xl font-bold font-serif-custom">Table Reserved!</h3>
+      <p class="text-brand-secondary text-sm max-w-md mx-auto">
+        Your booking is confirmed. A PDF ticket has been sent to your email and the restaurant host has been notified.
+      </p>
+      <div class="inline-block bg-brand-primary/5 border border-brand-primary/10 rounded-xl px-6 py-3 font-mono text-brand-primary text-lg font-bold">
+        Code: <span id="success-code">R-00000</span>
+      </div>
+      <div class="pt-4">
+        <button id="book-another-btn" class="bg-brand-primary text-brand-bg hover:opacity-90 font-medium px-6 py-2.5 rounded-btn text-sm transition-colors">
+          Book Another Table
+        </button>
+      </div>
+    </div>
+
+    <!-- Booking Form -->
+    <form id="reservation-form" data-slug={slug} class="space-y-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div>
+          <label for="name" class="block text-sm font-semibold text-brand-primary mb-2">Full Name</label>
+          <input type="text" id="name" name="name" required class="w-full border border-brand-primary/15 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-accent bg-brand-bg/20" placeholder="e.g. John Doe" />
+        </div>
+        <div>
+          <label for="email" class="block text-sm font-semibold text-brand-primary mb-2">Email Address</label>
+          <input type="email" id="email" name="email" required class="w-full border border-brand-primary/15 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-accent bg-brand-bg/20" placeholder="e.g. john@example.com" />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <div>
+          <label for="phone" class="block text-sm font-semibold text-brand-primary mb-2">Phone Number</label>
+          <input type="tel" id="phone" name="phone" required class="w-full border border-brand-primary/15 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-accent bg-brand-bg/20"           placeholder="e.g. +1 (555) 123-4567" />
+        </div>
+        <div>
+          <label for="party_size" class="block text-sm font-semibold text-brand-primary mb-2">Party Size</label>
+          <input type="number" id="party_size" name="party_size" required min="1" max="50" class="w-full border border-brand-primary/15 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-accent bg-brand-bg/20" placeholder="Number of guests" />
+        </div>
+        <div>
+          <label for="date" class="block text-sm font-semibold text-brand-primary mb-2">Select Date</label>
+          <input type="date" id="date" name="date" required class="w-full border border-brand-primary/15 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-accent bg-brand-bg/20" />
+        </div>
+      </div>
+
+      <div>
+        <label for="time" class="block text-sm font-semibold text-brand-primary mb-2">Select Time</label>
+        <input type="time" id="time" name="time" required class="w-full border border-brand-primary/15 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-accent bg-brand-bg/20" />
+      </div>
+
+      <div>
+        <label for="notes" class="block text-sm font-semibold text-brand-primary mb-2">Special Requests (Optional)</label>
+        <textarea id="notes" name="notes" rows="3" class="w-full border border-brand-primary/15 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-accent bg-brand-bg/20" placeholder="Allergies, seating preferences, etc..."></textarea>
+      </div>
+
+      <div id="error-message" class="hidden text-red-600 text-sm font-medium"></div>
+
+      <div>
+        <button type="submit" id="submit-btn" class="w-full bg-brand-primary text-brand-bg hover:opacity-95 font-semibold py-3.5 rounded-btn shadow-md transition-all flex items-center justify-center gap-2">
+          <span>Confirm Booking</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</section>
+
+<script>
+  const form = document.getElementById('reservation-form');
+  const successBanner = document.getElementById('reservation-success');
+  const successCode = document.getElementById('success-code');
+  const errorMsg = document.getElementById('error-message');
+  const submitBtn = document.getElementById('submit-btn');
+  const bookAnotherBtn = document.getElementById('book-another-btn');
+
+  // Set min date to today
+  const dateInput = document.getElementById('date');
+  if (dateInput) {
+    const today = new Date().toISOString().split('T')[0];
+    dateInput.setAttribute('min', today);
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errorMsg.classList.add('hidden');
+    submitBtn.setAttribute('disabled', 'true');
+    const origBtnText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<span>Processing reservation...</span>';
+
+    const slug = form.dataset.slug;
+    const formData = new FormData(form);
+    const data = {
+      name: formData.get('name'),
+      email: formData.get('email'),
+      phone: formData.get('phone'),
+      party_size: parseInt(formData.get('party_size')),
+      date: formData.get('date'),
+      time: formData.get('time'),
+      notes: formData.get('notes') || ''
+    };
+
+    try {
+      const response = await fetch(`http://localhost:8000/api/reservations/${slug}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.detail || 'Failed to create reservation');
+      }
+
+      if (result.success) {
+        successCode.innerText = result.reservationCode;
+        form.classList.add('hidden');
+        successBanner.classList.remove('hidden');
+        form.reset();
+      } else {
+        throw new Error(result.message || 'An error occurred.');
+      }
+    } catch (err) {
+      errorMsg.innerText = err.message;
+      errorMsg.classList.remove('hidden');
+    } finally {
+      submitBtn.removeAttribute('disabled');
+      submitBtn.innerHTML = origBtnText;
+    }
+  });
+
+  bookAnotherBtn.addEventListener('click', () => {
+    successBanner.classList.add('hidden');
+    form.classList.remove('hidden');
+  });
+</script>

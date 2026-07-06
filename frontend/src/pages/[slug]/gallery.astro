@@ -1,0 +1,46 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import Gallery from '../../components/Gallery.astro';
+import Footer from '../../components/Footer.astro';
+
+const { slug } = Astro.params;
+
+let clientData = null;
+let galleryImages = [];
+
+try {
+  const clientRes = await fetch(`http://localhost:8000/api/clients/${slug}`);
+  if (clientRes.status === 404) {
+    return Astro.redirect('/404');
+  }
+  clientData = await clientRes.json();
+
+  const galleryRes = await fetch(`http://localhost:8000/api/gallery/${slug}`);
+  if (galleryRes.ok) {
+    galleryImages = await galleryRes.json();
+  }
+} catch (error) {
+  console.error("Failed to load gallery images:", error);
+}
+
+if (!clientData) {
+  return Astro.redirect('/404');
+}
+---
+
+<Layout clientData={clientData} pageTitle={`Gallery | ${clientData.business_name}`} pageDescription={`Explore the photo gallery for ${clientData.business_name}. See our delicious food plating, restaurant interior, and guest experiences.`}>
+  <Header clientData={clientData} basePath={`/${slug}`} transparent={false} />
+  <div class="pt-28 sm:pt-36 bg-brand-bg text-center px-4 animate-fade-in">
+    <h1 class="text-brand-primary text-4xl sm:text-6xl font-bold font-serif-custom tracking-tight">
+      Photo Gallery
+    </h1>
+    <p class="mt-4 text-brand-secondary text-sm sm:text-base max-w-xl mx-auto leading-relaxed">
+      A visual look inside our dining halls, chef preparations, and signature plates.
+    </p>
+  </div>
+  <main>
+    <Gallery clientData={clientData} images={galleryImages} basePath={`/${slug}`} />
+  </main>
+  <Footer clientData={clientData} basePath={`/${slug}`} />
+</Layout>

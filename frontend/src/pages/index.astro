@@ -1,0 +1,114 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Header from "../components/Header.astro";
+import Hero from "../components/Hero.astro";
+import FeaturedMenu from "../components/FeaturedMenu.astro";
+import Testimonials from "../components/Testimonials.astro";
+import OrderOnline from "../components/OrderOnline.astro";
+import Footer from "../components/Footer.astro";
+
+const demoClientData = {
+  slug: "demo",
+  business_name: "La Piazza",
+  niche: "Italian",
+  city: "New York",
+  phone: "+1 (555) 123-4567",
+  address: "123 Main Street, New York, NY",
+  state: "NY",
+  email: "contact@restaurant.com",
+  facebook_url: "https://facebook.com",
+  instagram_url: "https://instagram.com",
+  latitude: "29.7416266",
+  longitude: "-87.3086946",
+  google_maps_url: "",
+};
+
+const demoMenuItems = [
+  {
+    name: "Margherita Classica",
+    description:
+      "San Marzano tomato sauce, fresh mozzarella di bufala, basil, extra virgin olive oil on a wood-fired crust.",
+    price: "1800",
+    image_url:
+      "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?auto=format&fit=crop&w=400&q=80",
+  },
+  {
+    name: "Truffle Mushroom Risotto",
+    description:
+      "Arborio rice slow-cooked with wild mushrooms, black truffle oil, aged parmesan, and fresh thyme.",
+    price: "2400",
+    image_url:
+      "https://images.unsplash.com/photo-1476124369491-e7addf5db371?auto=format&fit=crop&w=400&q=80",
+  },
+  {
+    name: "Tiramisu della Casa",
+    description:
+      "House-made ladyfingers, mascarpone cream, espresso-soaked layers, dusted with Valrhona cocoa.",
+    price: "1200",
+    image_url:
+      "https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?auto=format&fit=crop&w=400&q=80",
+  },
+];
+
+const demoTestimonials = [
+  {
+    author_name: "Alex",
+    rating: 5,
+    text: "The ambiance is stunning and the truffle risotto was the best I have had outside of Italy. Absolutely coming back.",
+  },
+  {
+    author_name: "jackson",
+    rating: 5,
+    text: "La Piazza feels like a warm Italian kitchen. The pasta is clearly fresh and the staff made our anniversary feel special.",
+  },
+  {
+    author_name: "amile",
+    rating: 4,
+    text: "Beautiful space, delicious food, and great service. The tiramisu alone is worth the visit.",
+  },
+];
+---
+
+<Layout
+  clientData={demoClientData}
+  pageTitle={`${demoClientData.business_name} | Authentic Italian Restaurant in ${demoClientData.city}`}
+  pageDescription={`Welcome to ${demoClientData.business_name}. Experience authentic Italian cuisine in the heart of ${demoClientData.city}. Order online for delivery or pickup.`}
+>
+  <Header clientData={demoClientData} basePath="" />
+  <main>
+    <Hero clientData={demoClientData} basePath="" />
+
+    <section class="py-16 bg-brand-bg px-4 sm:px-6 md:px-10">
+      <div class="max-w-4xl mx-auto text-center animate-fade-up">
+        <h2
+          class="text-brand-primary text-2xl sm:text-3xl font-bold font-serif-custom mb-4"
+        >
+          A Taste of Italy in {demoClientData.city}
+        </h2>
+        <p
+          class="text-brand-secondary text-base sm:text-lg leading-relaxed max-w-2xl mx-auto"
+        >
+          At {demoClientData.business_name}, we bring the warmth of Italian
+          hospitality to every table. From our hand-tossed pizzas to our
+          slow-simmered sauces, every dish is crafted with imported ingredients
+          and generations of tradition.
+        </p>
+      </div>
+    </section>
+
+    <FeaturedMenu
+      clientData={demoClientData}
+      menuItems={demoMenuItems}
+      basePath=""
+    />
+
+    <OrderOnline
+      clientData={demoClientData}
+      menuItems={demoMenuItems}
+      basePath=""
+    />
+
+    <Testimonials testimonials={demoTestimonials} />
+  </main>
+  <Footer clientData={demoClientData} basePath="" />
+</Layout>

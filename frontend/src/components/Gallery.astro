@@ -1,0 +1,41 @@
+---
+const { clientData, images = [], basePath = '' } = Astro.props;
+
+const fallbackImages = [
+  { image_url: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=600&q=80", alt_text: "Signature dish plating" },
+  { image_url: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=600&q=80", alt_text: "Chefs cooking in kitchen" },
+  { image_url: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=600&q=80", alt_text: "Main restaurant hall" },
+  { image_url: "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=600&q=80", alt_text: "Fresh seasonal salad" },
+  { image_url: "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&w=600&q=80", alt_text: "Fresh pasta prep" }
+];
+
+const galleryItems = images.length > 0 ? images : fallbackImages;
+---
+
+<section class="py-24 bg-brand-bg px-4 sm:px-6 md:px-10">
+  <div class="max-w-7xl mx-auto">
+    <div class="text-center max-w-2xl mx-auto mb-16 animate-fade-up">
+      <h2 class="text-brand-primary text-3xl sm:text-4xl md:text-5xl font-bold font-serif-custom tracking-tight">
+        Visual Journey
+      </h2>
+      <p class="mt-4 text-brand-secondary text-base sm:text-lg">
+        A glimpse into our crafted dishes, vibrant atmosphere, and culinary moments.
+      </p>
+    </div>
+
+    <!-- Masonry Layout using CSS Columns -->
+    <div class="columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6">
+      {galleryItems.map((img) => (
+        <div class="break-inside-avoid rounded-card overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 group bg-white border border-brand-primary/5 p-2">
+          <img 
+            src={img.image_url} 
+            alt={img.alt_text || "Restaurant Photo"} 
+            class="w-full h-auto object-cover rounded-xl transition-transform duration-500 group-hover:scale-[1.01]" 
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
