@@ -8,7 +8,10 @@ const { slug } = Astro.params;
 let clientData = null;
 
 try {
-  const clientRes = await fetch(`http://localhost:8000/api/clients/${slug}`);
+  // const clientRes = await fetch(`http://localhost:8000/api/clients/${slug}`);
+  const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8000';
+  
+  const clientRes = await fetch(`${API_URL}/api/clients/${slug}`);
   if (clientRes.status === 404) {
     return Astro.redirect('/404');
   }
